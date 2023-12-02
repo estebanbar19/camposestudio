@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 class RadarChart extends StatefulWidget {
   List<List<int>> data;
   Size size;
-  RadarChart({Key? key, required this.data, required this.size}) : super(key: key);
+  List<String> labels;
+  Color color;
+  RadarChart({Key? key, required this.labels, required this.data, required this.size, required this.color}) : super(key: key);
 
   @override
   State<RadarChart> createState() => _RadarChartState();
@@ -13,12 +15,19 @@ class RadarChart extends StatefulWidget {
 
 class _RadarChartState extends State<RadarChart> {
 
-  late int maxValue;
+  late int maxValue = 5;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    addMaxArea();
+  }
+
+  void addMaxArea(){
+    widget.data = [...widget.data, List.generate(widget.data.first.length, (index) => maxValue)];
+
     widget.data.sort((a, b) {
       int sumA = 0;
       int sumB = 0;
@@ -28,23 +37,18 @@ class _RadarChartState extends State<RadarChart> {
 
       return sumA > sumB ? -1 : (sumA == sumB ? 0 : 1);
     },);
+  }
 
-    List<int> maxValues = [];
-    for(var element in widget.data){
-      if(element.isNotEmpty){
-        maxValues.add(element.reduce((max, value) => value > max ? value : max));
-      }else{
-        maxValues.add(0);
-      }
-    }
-    maxValue = maxValues.reduce((max, value) => value > max ? value : max);
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    addMaxArea();
   }
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
-      children: [RadarChartBackground(size: widget.size,), ...List.generate(widget.data.length, (index) => RadarChartPolygon(size: widget.size, data: widget.data[index], maxValue: maxValue))],
+      children: [RadarChartBackground(size: widget.size,), ...List.generate(widget.data.length, (index) => RadarChartPolygon(size: widget.size, data: widget.data[index], labels: widget.labels, maxValue: maxValue, color: (index == 0) ? Colors.grey : widget.color))],
     );
   }
 }
@@ -53,7 +57,9 @@ class RadarChartPolygon extends StatefulWidget {
   Size size;
   List<int> data;
   int maxValue;
-  RadarChartPolygon({Key? key, required this.size, required this.data, required this.maxValue}) : super(key: key);
+  Color color;
+  List<String> labels;
+  RadarChartPolygon({Key? key, required this.size, required this.labels, required this.data, required this.maxValue, required this.color}) : super(key: key);
 
   @override
   State<RadarChartPolygon> createState() => _RadarChartPolygonState();
@@ -63,7 +69,7 @@ class _RadarChartPolygonState extends State<RadarChartPolygon> {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: RadarChartPainter(data: widget.data, maxValue: widget.maxValue),
+      painter: RadarChartPainter(data: widget.data, maxValue: 5, labels: widget.labels, color: widget.color),
       size: widget.size,
     );
   }
@@ -93,7 +99,9 @@ class RadarChartPainter extends CustomPainter {
   bool isBackground;
   List<int>? data;
   int? maxValue;
-  RadarChartPainter({this.isBackground = false, this.data, this.maxValue});
+  List<String>? labels;
+  Color? color;
+  RadarChartPainter({this.isBackground = false, this.labels, this.data, this.maxValue, this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -117,18 +125,6 @@ class RadarChartPainter extends CustomPainter {
       ..strokeWidth = 1.0
       ..isAntiAlias = true;
 
-    Color colorGraph = Color.fromARGB(255, math.Random().nextInt(255), math.Random().nextInt(255), math.Random().nextInt(255));
-
-    var graphPaint = Paint()
-      ..color = colorGraph.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-
-    var graphOutlinePaint = Paint()
-      ..color = colorGraph
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0
-      ..isAntiAlias = true;
-
     if(isBackground){
       path.addOval(Rect.fromCircle(
         center: Offset(size.width / 2, size.height / 2),
@@ -137,12 +133,25 @@ class RadarChartPainter extends CustomPainter {
 
       int decrement = (radius/5).round();
 
-      for(int i = radius as int; i > 0; i-=decrement){
+      for(int i = radius.toInt(); i > 0; i-=decrement){
         canvas.drawPath(Path()..addOval(Rect.fromCircle(center: Offset(size.width / 2, size.height / 2), radius: i*1.0)), ticksPaint);
       }
 
       canvas.drawPath(path, outlinePaint);
     }else{
+
+      Color colorGraph = color!;
+
+      var graphPaint = Paint()
+        ..color = colorGraph.withOpacity(0.3)
+        ..style = PaintingStyle.fill;
+
+      var graphOutlinePaint = Paint()
+        ..color = colorGraph
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0
+        ..isAntiAlias = true;
+
       if(maxValue! > 0){
         var scale = radius / maxValue!;
         var scaledPoint = scale * data![0];
@@ -164,7 +173,7 @@ class RadarChartPainter extends CustomPainter {
           var labelXOffset = xAngle > 0 ? featureOffset.dx : 0.0;
 
           TextPainter(
-            text: TextSpan(text: "${index+1}", style: TextStyle(color: Colors.black, fontSize: 16)),
+            text: TextSpan(text: "${labels![index]}", style: TextStyle(color: Colors.black, fontSize: 16)),
             textAlign: xAngle < 0 ? TextAlign.right : TextAlign.left,
             textDirection: TextDirection.ltr,
           )

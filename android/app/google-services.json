@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "56709198289",
+    "project_id": "camposestudios-b4a65",
+    "storage_bucket": "camposestudios-b4a65.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:56709198289:android:0fe7656326ae77b64c70f0",
+        "android_client_info": {
+          "package_name": "com.edbc.camposestudio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXifpa7CuiOwg98k4ZKm6UvnxGh6Twy90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
