@@ -18,7 +18,7 @@ class ChatCompletionResponse{
   String get id => _id;
 
   factory ChatCompletionResponse.fromJson(Map<String, dynamic> json) {
-    String id = json['id'];
+    String id = json['id'] ?? "";
     String object = json['object'];
     int created = json['created'];
     List<Choice> choices = (json['choices'] as List).map((choiceJson) => Choice.fromJson(choiceJson)).toList();

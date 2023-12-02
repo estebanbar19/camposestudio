@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
         componentesDataSnapshot.value as List<Object?>;
     Componente componenteData = Componente.getInstance();
     componenteData.setCantComponentes(listaComponentes.length);
-    componenteData.createIndicadoresPorComponentes();
+    if(componenteData.indicadores.isEmpty) componenteData.createIndicadoresPorComponentes();
     List<Map<String, Indicador>> indicadores = [];
     listaComponentes.asMap().forEach((key, value) {
       Map<String, dynamic> componenteInfo =

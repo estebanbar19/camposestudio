@@ -103,6 +103,7 @@ class _DataScreenState extends State<DataScreen> {
             _componenteEvaluar.getNotasPorComponentes().forEach((element) {
               maxAreasPerComponente.add(Maths().CalcAreaMax(element));
             });
+
             List<String> titles = _componenteEvaluar.componentes;
             Navigator.of(context).pushNamed("/graphic", arguments: GraphicScreenArguments(titles,_componenteEvaluar,maxAreasPerComponente));
           }
